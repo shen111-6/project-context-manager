@@ -1,0 +1,10 @@
+# Local scratch work and acceptance artifacts
+work/
+outputs/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
