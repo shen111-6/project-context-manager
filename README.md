@@ -1,91 +1,109 @@
-# Project Context Manager
+# Project Context Manager v2 for Codex
 
-为长期软件开发提供项目上下文压缩、交接、恢复与健康检查的 Agent Skill。
+为 Codex 长期软件开发提供状态查看、工作断点、上下文压缩、账号交接、恢复与一致性核验。没有旧聊天的 Codex 也能从项目资料定位证据。Handoff / Checkpoint 是恢复入口和快照，不是最终事实来源。
 
-它从当前代码、Git、项目文档和任务记录重建项目状态，使未读过旧聊天的 Agent 能定位证据并继续工作。**Handoff 是恢复入口与当前快照，不是最终事实来源。**
+## 这个 Skill 的优势
 
-## 三种模式
+- **换会话、换账号时减少重复交代。** 将目标、当前任务、关键约束和下一步保存在项目中；接收方可通过 `restore` 重建状态，无需依赖旧聊天。
+- **保留真实开发断点。** `checkpoint` 能记录部分实现、未提交修改、失败测试和阻碍，避免把“做到一半”误当成“已经完成”。
+- **恢复前重新核实，降低过时记录带来的误导。** 对照当前代码、Git 和必要验证检查 Handoff / Checkpoint；发现冲突时明确报告，而不是直接沿用旧结论。
+- **按需要选择操作，控制上下文整理成本。** 日常查看用轻量 `status`，开发中保存用 `checkpoint`，上下文过长用 `compress`，账号移交才用 `handoff`；不必每次执行完整交接。
+- **保留决策理由，减少重复讨论。** 记录有效决策、约束及重新评估条件，同时区分已接受的决定与代码中的实现偏差。
+- **适配已有项目，接入负担小。** 优先复用现有文档，不强制固定目录；Skill 本身不需要数据库或后台服务。查看、恢复和核验默认只读，写入模式只做必要的上下文同步。
 
-| 模式 | 用途 | 默认文件操作 |
+这些优势来自明确的流程和证据规则，不意味着能自动找回未保存的工作；可靠恢复仍需要可访问的项目文件和准确记录。
+
+## 六个正式模块
+
+| 模块 | 用途 | 默认文件操作 |
 |---|---|---|
-| `compress` | 重建当前状态、维护 Handoff、保留决定与下一步 | 重点更新交接；仅在明确必要时有限同步其他文档 |
-| `restore` | 读取项目记忆并根据当前 Git、相关代码和必要验证重新确认 | 只读并报告；继续开发需有相应任务授权 |
-| `health-check` | 检查资料一致性和证据缺口，给出 Good / Warning / Poor | 只读并报告 |
+| `status` | 快速查看当前真实状态和下一动作 | 轻量只读，不全面读取或大范围测试 |
+| `checkpoint` | 保存当前 WIP、失败、阻碍与精确下一步 | 优先更新现有 checkpoint/current-work |
+| `compress` | 当前 Codex 继续开发时精简上下文 | 维护 current context snapshot，必要时有限同步 |
+| `handoff` | 明确转移当前 Codex 工作或切换账号 | 组合核验并生成正式 Handoff 和准备度 |
+| `restore` | 接收方恢复项目 | 核对真实代码/Git，报告后停止 |
+| `verify` | 检查上下文、Checkpoint、Handoff 与实际是否一致 | 只读报告，不自动修正文档 |
 
 ## 获取与安装
 
-下载本仓库的 ZIP，或者克隆：
+下载完整 Skill 目录，安装到 Codex 的个人技能目录 `$CODEX_HOME/skills/project-context-manager`（未设置时为 `~/.codex/skills/project-context-manager`）。保留 `SKILL.md`、`agents`、`references`、`assets` 的完整结构，不只复制入口。已安装旧版时用完整 v2 目录替换，避免混用旧文件；在新的 Codex 会话中确认加载的是 v2，再用隔离样例验收。
 
-```sh
-git clone https://github.com/shen111-6/project-context-manager.git
-```
+本 Skill 只面向 Codex，不提供其他 Agent 的调用或适配层。
 
-将包含 `SKILL.md` 的完整目录安装到目标 Agent 支持的技能目录。不同宿主的安装位置和调用语法可能不同，请让目标 Agent 确认它能够加载入口文件及所有相对引用。不要只复制 `SKILL.md`。
-
-可以将以下提示连同完整目录交给目标 Agent：
+## 调用
 
 ```text
-请安装这个 project-context-manager Skill，保留完整目录和文件。
-按照你所在 Agent 的技能机制选择安装位置，确认可以加载 SKILL.md 及其引用资料。
-安装后告诉我 compress、restore、health-check 的调用方式。
-暂时不要在真实项目上运行；如果不支持此格式，请说明需要的适配。
-```
-
-## 调用示例
-
-在支持 `$skill-name` 调用的 Codex 项目会话中：
-
-```text
+$project-context-manager status
+$project-context-manager checkpoint
 $project-context-manager compress
-压缩当前项目上下文，重点更新 Handoff，记录证据基线和下一步。
-```
-
-```text
+$project-context-manager handoff
 $project-context-manager restore
-恢复当前项目上下文，核验相关代码与 Git 状态，输出恢复报告。
+$project-context-manager verify
 ```
+
+模式词是 Codex 任务提示，不是 shell 子命令。仅调用 `$project-context-manager` 默认 status，再建议下一模块，不直接修改文件。支持自然语言隐式调用：“现在项目做到哪了”“保存一下当前断点”“压缩上下文”“我要换 Codex 账号”“恢复项目”“检查上下文有没有漂移”。没有用户交接意图时不会创建正式账号 Handoff。
+
+## 典型流程
+
+日常开发：status → 开发工作 → checkpoint；上下文过长时 compress，需检查记录是否仍适用时 verify。WIP、dirty 工作区、失败测试和未验证内容均如实保留，不伪装完成。
+
+账号交接：
 
 ```text
-$project-context-manager health-check
-检查当前上下文健康度，报告等级、依据及是否建议开启新会话。
+Codex Account A
+$project-context-manager handoff
+→ Handoff Ready（或 Ready With Gaps / Not Ready，并解释原因）
+→ 切换 Codex 账号，打开同一个项目及所需文件
+Codex Account B
+$project-context-manager restore
+→ Restore Report
+→ 用户确认后继续开发
 ```
 
-其他 Agent 请使用其支持的技能调用方式，或明确要求先读取 `SKILL.md` 再执行相应模式。`agents/openai.yaml` 提供 Codex 界面信息与调用策略，其他宿主可能不使用它。
+若用户已同时明确授权“恢复后继续开发”，恢复报告后可继续该任务，无需重复确认。单独 restore 报告后停止。handoff 不自动传输代码或未提交内容；接收方需能访问实际项目文件。dirty 本身不阻止交接，但缺失关键修改会影响准备度。
 
 ## 工作原则
 
-- 判断当前实现事实时，以代码、Git 和可核验资料为依据；聊天中的“已完成”不能替代实现和验证。
-- 区分实际实现与有效架构决策：实现偏差不会自动成为合法的新决定。
-- 优先复用项目已有文档体系，不强制创建固定七份文档。
-- 按最小充分上下文维护当前快照，不累积聊天流水账；100–180 行仅为软参考。
-- 交接记录项目范围、分支、HEAD、工作区、已读文件、实际验证、核验时间及证据缺口。
-- 不为整理上下文重构代码、删除源码、改变架构或自动 commit/push。
-
-Skill 包保存通用方法，不保存具体项目的记忆。交接一个实际项目时，还需提供项目代码及该项目的 Handoff、决策和状态文档。
+- 当前代码 > Git > 项目文档 > 当前任务记录 > 聊天记录；真实实现不能自动覆盖有效约束或合法化实现偏差。
+- 六模块共用 `references/state-reconstruction.md`；模板承载字段，不定义新的事实标准。
+- 优先复用项目文档，不强制 `.project-context` 或固定一套文件；只做有限同步。
+- 最小充分上下文，不累积聊天流水账；100–180 行仅为压缩软参考，关键约束、决策理由、风险和证据不可为了行数删除。
+- 不自动 commit/push/reset/clean/stash/deploy，不因整理上下文修改源码，不复制凭据，不全仓无差别扫描。
+- 不保存模型私有推理。Skill 包只保存方法，项目记忆保存在对应项目中。
 
 ## 目录
 
 ```text
 project-context-manager/
 ├── SKILL.md
+├── README.md
 ├── agents/openai.yaml
 ├── references/
 │   ├── state-reconstruction.md
+│   ├── status.md
+│   ├── checkpoint.md
 │   ├── compress.md
+│   ├── handoff.md
 │   ├── restore.md
+│   ├── verify.md
 │   ├── health-check.md
 │   └── validation.md
 └── assets/
+    ├── checkpoint-template.md
     ├── handoff-template.md
     └── decision-template.md
 ```
 
-三个模式统一使用 `references/state-reconstruction.md` 的公共判断规则，只按需加载对应模式资料。模板保留关键字段，适配项目已有命名与布局。
+## 从旧版升级
 
-## 验证情况与边界
+`compress`、`restore` 仍可调用；普通压缩不再表示正式账号交接，需要正式交接请使用 `handoff`。无模式调用由 health-check 改为 status。旧 Handoff 无新字段时仍可作为定位资料读取；缺失基线/Purpose/Checkpoint 如实记录，不强制迁移，不推断正式就绪。
 
-已通过结构校验及一次 Codex 隔离行为验收：10 个小型 Python 标准库样例，12 次完成的模式执行，覆盖虚假完成声明、相同 HEAD 的未提交变化、ADR 冲突、无旧聊天恢复、重复压缩和健康分级。另有两次未取得完整结果的尝试被排除，并由新代理重新执行。
+`health-check` 保留轻量别名，路由 verify；输出改为 Verified / Verified With Gaps / Drift Detected / Insufficient Evidence。依赖旧 Good / Warning / Poor 文本的自动处理需调整，不能机械映射。新的只读模式不会替用户自动补齐旧文档。
 
-该结果不代表其他 Agent、大型仓库、任意长期重复运行或所有环境均已验证。验证规范见 `references/validation.md`。迁移后建议先使用隔离样例确认行为。
+## 验证与边界
 
-Skill 不提供后台监控，也不保证每次会话启动都会自动执行；不能恢复未保存且不可访问的旧聊天。使用方需要提供项目文件访问能力、Git 与适用的本地验证能力，压缩模式还需要文档写入权限。
+默认采用 3+1 验收：基础结构、一次核心交接恢复链路、一次冲突测试，另按实际修改范围追加。历史边界仅作为可选 Full Regression。验收规范见 [references/validation.md](references/validation.md)。格式校验与实际隔离行为验收分别报告，旧版测试结果不自动继承为 v2 通过。
+
+本次 v2 核心验收通过：基础结构 PASS；最小隔离项目的 checkpoint → handoff → 无旧聊天独立 restore 主流程 PASS；虚假完成声明的冲突检测 PASS。恢复与核验未改写测试项目。未执行完整回归，尚未覆盖大型多模块仓库、并行文档修改、跨工作树文件缺失及真实提交历史漂移；未在真实用户项目上测试。
+
+不包含运行脚本、数据库、后台服务、自动 quota 检测、定时保存或跨 Agent 兼容层；默认用户在 Codex 正常可用时主动 checkpoint/handoff。不能恢复未保存且不可访问的旧聊天；本地文件、Git 和适用验证工具的可用性决定核验范围。

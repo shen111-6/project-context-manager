@@ -1,7 +1,7 @@
 interface:
-  display_name: "Project Context Manager"
-  short_description: "Rebuild, hand off, and restore verified project context"
-  default_prompt: "使用 $project-context-manager 检查当前项目上下文健康度，并建议是否需要生成交接。"
+  display_name: "Codex Project Context Manager"
+  short_description: "Codex project status, checkpoints, handoff and restore"
+  default_prompt: "使用 $project-context-manager status 只读查看当前项目状态，再建议适合的下一模块；不要直接修改项目文件。"
 
 policy:
   allow_implicit_invocation: true

@@ -1,6 +1,14 @@
-# AI Handoff
+# Codex Handoff / Current Context Snapshot
 
 > 恢复工作的索引和当前快照，不是最终事实来源。恢复时按当前项目范围重新核对 Git、相关代码和必要验证。沿用已有项目格式时保留以下语义；填入实际信息，未知/不适用明确说明。
+
+## Purpose / Transfer Metadata
+
+- Purpose: Codex Account Handoff（正式交接） / Current Context Snapshot（compress，选择实际用途）
+- Handoff Status: Ready / Ready With Gaps / Not Ready（仅正式交接；快照写 Not applicable）
+- Checkpoint reference: 现有断点/current-work 相对路径，缺失则说明及影响
+- Prepared From: branch / HEAD / working tree；引用下方写入前 Verification Baseline
+- Receiving Codex startup instruction: `$project-context-manager restore`（正式交接）；快照写 Not applicable
 
 ## Project / Goal
 
