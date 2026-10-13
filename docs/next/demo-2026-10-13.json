@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic-offline-demo",
+  "version": "3.0.0-alpha.2",
+  "startedAt": "2026-10-13T02:59:34.084Z",
+  "finishedAt": "2026-10-13T02:59:48.330Z",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.18.0"
+  },
+  "status": "Passed",
+  "readonlyEvidence": [
+    {
+      "file": "counter.ts",
+      "sha256": "7516f8d351889d7c1f33f33243167c2fedb6d28fd7dc9c770c32a9064c8a1732"
+    },
+    {
+      "file": ".git/index",
+      "sha256": "a0625fbc0ffddff0949357f6a5490a68c596e35d182efa3ee4f51339cf1a8aa5"
+    },
+    {
+      "file": "docs/project-context/pcm/index.json",
+      "sha256": "a389cf2858c9de7acdb65363a0a2393bda995600a4bacc88f7903d24096c5170"
+    },
+    {
+      "file": "docs\\project-context\\pcm\\snapshots\\4afeec82-2cc2-4e58-906f-ff3adc165829\\snapshot.json",
+      "sha256": "f0ca8404446863b42cf2528dfe4b23d248042f2a98128fe52ba7345f98af0cc3"
+    },
+    {
+      "file": "docs\\project-context\\pcm\\snapshots\\4afeec82-2cc2-4e58-906f-ff3adc165829\\handoff.md",
+      "sha256": "ad37712478f3856f161b452d9d2167f2c10a38386e0698f913736ce31f52327a"
+    }
+  ],
+  "scenarios": [
+    {
+      "label": "缺少记录时准确失败",
+      "elapsedMs": 993,
+      "operation": "restore",
+      "outcome": "failed",
+      "assessment": "Insufficient Evidence",
+      "findings": [
+        "NO_RECORD"
+      ]
+    },
+    {
+      "label": "保存真实开发断点",
+      "elapsedMs": 3856,
+      "operation": "checkpoint",
+      "outcome": "success",
+      "assessment": "Verified With Gaps",
+      "findings": []
+    },
+    {
+      "label": "生成不可变交接记录",
+      "elapsedMs": 4015,
+      "operation": "handoff",
+      "outcome": "success",
+      "assessment": "Verified With Gaps",
+      "findings": []
+    },
+    {
+      "label": "恢复任务并保留只读现场",
+      "elapsedMs": 1914,
+      "operation": "restore",
+      "outcome": "partial",
+      "assessment": "Verified With Gaps",
+      "findings": [
+        "SEMANTIC_REVIEW_REQUIRED"
+      ]
+    },
+    {
+      "label": "识别记录之后的源码变化",
+      "elapsedMs": 1964,
+      "operation": "verify",
+      "outcome": "partial",
+      "assessment": "Drift Detected",
+      "findings": [
+        "FILE_DRIFT"
+      ]
+    },
+    {
+      "label": "拒绝被篡改的交接记录",
+      "elapsedMs": 1027,
+      "operation": "restore",
+      "outcome": "failed",
+      "assessment": "Insufficient Evidence",
+      "findings": [
+        "RECORD_CHANGED"
+      ]
+    },
+    {
+      "label": "已取消请求不执行操作",
+      "elapsedMs": 0,
+      "operation": "status",
+      "outcome": "cancelled",
+      "assessment": "Insufficient Evidence",
+      "findings": [
+        "CANCELLED"
+      ]
+    }
+  ],
+  "limitations": [
+    "合成演示，不是用户研究、性能基准或准确率评估",
+    "不调用 Agent，不执行 GUI",
+    "只读断言覆盖列出的文件及 Git index",
+    "取消场景为预先取消请求，不代表运行中 GUI 取消验收"
+  ]
+}

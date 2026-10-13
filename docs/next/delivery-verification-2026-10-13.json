@@ -1,0 +1,84 @@
+{
+  "status": "Passed",
+  "artifact": "project-context-manager-3.0.0-alpha.2-delivery-18f3330e-c215-43b6-a6e0-ee7c645fb918.zip",
+  "sha256": "81553cfd11e8b552142920d008c0323f0766a5165809b6af137f9454b5bb3c0a",
+  "archiveEntries": [
+    "bin/pcm.cjs",
+    "schema/snapshot-v1.json",
+    "THIRD_PARTY_NOTICES.txt",
+    "verify.mjs",
+    "extensions/project-context-manager-3.0.0-alpha.2.vsix",
+    "docs/overview.md",
+    "evidence/offline-demo-2026-10-13.json",
+    "README.md",
+    "manifest.json"
+  ],
+  "archiveByteCheck": "Passed",
+  "nestedVsixCheck": {
+    "status": "Passed",
+    "entries": [
+      "[Content_Types].xml",
+      "extension.vsixmanifest",
+      "extension/THIRD_PARTY_NOTICES.txt",
+      "extension/dist/extension.cjs",
+      "extension/package.json",
+      "extension/readme.md",
+      "extension/resources/state-reconstruction.md"
+    ],
+    "currentBundleBytes": "Matched",
+    "currentPolicyBytes": "Matched"
+  },
+  "extractedCliCheck": {
+    "status": "Passed",
+    "version": "3.0.0-alpha.2",
+    "platform": "win32",
+    "node": "v24.18.0",
+    "checksummedFiles": 8,
+    "cliScenarios": [
+      {
+        "operation": "restore",
+        "exitCode": 1,
+        "outcome": "failed",
+        "assessment": "Insufficient Evidence",
+        "findings": [
+          "NO_RECORD"
+        ]
+      },
+      {
+        "operation": "handoff",
+        "exitCode": 0,
+        "outcome": "success",
+        "assessment": "Verified With Gaps",
+        "findings": [
+          "NOT-GIT"
+        ]
+      },
+      {
+        "operation": "restore",
+        "exitCode": 2,
+        "outcome": "partial",
+        "assessment": "Verified With Gaps",
+        "findings": [
+          "NOT-GIT",
+          "SEMANTIC_REVIEW_REQUIRED"
+        ]
+      },
+      {
+        "operation": "verify",
+        "exitCode": 2,
+        "outcome": "partial",
+        "assessment": "Drift Detected",
+        "findings": [
+          "NOT-GIT",
+          "FILE_DRIFT"
+        ]
+      }
+    ],
+    "limitations": [
+      "local synthetic fixture; no Agent or GUI invoked",
+      "manifest proves consistency, not publisher authenticity"
+    ],
+    "tamperRejection": "Passed before CLI execution"
+  },
+  "verificationTime": "2026-10-13T03:13:05.232Z"
+}
