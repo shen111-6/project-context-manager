@@ -1,0 +1,6 @@
+{
+  "name": "@pcm/evaluation",
+  "version": "3.0.0-alpha.2",
+  "private": true,
+  "type": "module"
+}

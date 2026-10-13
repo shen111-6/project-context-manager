@@ -1,109 +1,122 @@
-# Project Context Manager v2 for Codex
+# Project Context Manager — 下一代本地 Alpha
 
-为 Codex 长期软件开发提供状态查看、工作断点、上下文压缩、账号交接、恢复与一致性核验。没有旧聊天的 Codex 也能从项目资料定位证据。Handoff / Checkpoint 是恢复入口和快照，不是最终事实来源。
+保留 Codex v2 六模块 Skill，新增独立 TypeScript 引擎、结构化交接记录、CLI 和真实 VS Code 图形界面。用户入口只有 **交接项目、恢复项目、查看状态**。
 
-## 这个 Skill 的优势
+当前交付为 `3.0.0-alpha.2`，交接协议为 `schema_version: 1`。本次 Alpha 核心功能与演示验收 PASS，可用于 AI 工程岗位项目展示；完整正式发布验收仍独立保留。
 
-- **换会话、换账号时减少重复交代。** 将目标、当前任务、关键约束和下一步保存在项目中；接收方可通过 `restore` 重建状态，无需依赖旧聊天。
-- **保留真实开发断点。** `checkpoint` 能记录部分实现、未提交修改、失败测试和阻碍，避免把“做到一半”误当成“已经完成”。
-- **恢复前重新核实，降低过时记录带来的误导。** 对照当前代码、Git 和必要验证检查 Handoff / Checkpoint；发现冲突时明确报告，而不是直接沿用旧结论。
-- **按需要选择操作，控制上下文整理成本。** 日常查看用轻量 `status`，开发中保存用 `checkpoint`，上下文过长用 `compress`，账号移交才用 `handoff`；不必每次执行完整交接。
-- **保留决策理由，减少重复讨论。** 记录有效决策、约束及重新评估条件，同时区分已接受的决定与代码中的实现偏差。
-- **适配已有项目，接入负担小。** 优先复用现有文档，不强制固定目录；Skill 本身不需要数据库或后台服务。查看、恢复和核验默认只读，写入模式只做必要的上下文同步。
+## 本次 Alpha 交付：核心功能与优势
 
-这些优势来自明确的流程和证据规则，不意味着能自动找回未保存的工作；可靠恢复仍需要可访问的项目文件和准确记录。
+1. **接续开发**：保存并恢复目标、断点、WIP 和下一步，让新会话从明确状态继续。
+2. **发现过时结论**：重新比对代码与 Git，发现交接之后的漂移，不沿用旧“完成/通过”声明。
+3. **保护工作现场**：查看、恢复与核验默认只读；记录不可变，拒绝并发覆盖及篡改。
 
-## 六个正式模块
+[在线演示](https://personal-projects-y3tzt1.yaofengshen05.chatgpt.site/project-context-manager.html) · [源码草稿 PR](https://github.com/shen111-6/project-context-manager/pull/1) · [Alpha 交付报告](docs/next/alpha-delivery-2026-10-13.md) · [已知限制](docs/next/alpha-delivery-2026-10-13.md#known-limitations)
 
-| 模块 | 用途 | 默认文件操作 |
-|---|---|---|
-| `status` | 快速查看当前真实状态和下一动作 | 轻量只读，不全面读取或大范围测试 |
-| `checkpoint` | 保存当前 WIP、失败、阻碍与精确下一步 | 优先更新现有 checkpoint/current-work |
-| `compress` | 当前 Codex 继续开发时精简上下文 | 维护 current context snapshot，必要时有限同步 |
-| `handoff` | 明确转移当前 Codex 工作或切换账号 | 组合核验并生成正式 Handoff 和准备度 |
-| `restore` | 接收方恢复项目 | 核对真实代码/Git，报告后停止 |
-| `verify` | 检查上下文、Checkpoint、Handoff 与实际是否一致 | 只读报告，不自动修正文档 |
+2026-10-13：本地 38 项回归、七个离线场景已通过；三平台既有 CI 通过。本次 6,202 文件规模夹具的限定检查通过，6,207 项哈希不变；单次耗时不作为性能承诺。Alpha 保留语义待核实和接口限制。
 
-## 获取与安装
+## 快速演示与项目展示
 
-下载完整 Skill 目录，安装到 Codex 的个人技能目录 `$CODEX_HOME/skills/project-context-manager`（未设置时为 `~/.codex/skills/project-context-manager`）。保留 `SKILL.md`、`agents`、`references`、`assets` 的完整结构，不只复制入口。已安装旧版时用完整 v2 目录替换，避免混用旧文件；在新的 Codex 会话中确认加载的是 v2，再用隔离样例验收。
+`npm run demo` 可离线运行七个有断言的交接/恢复场景，保留原始 JSON 和只读校验结果，无需 Agent 登录。见 [演示指南](docs/demo.md)、[AI 岗位项目展示与简历描述](docs/showcase.md) 和 [当前收尾清单](docs/next/completion.md)。这些材料引用实际验证，不宣称未测试的性能或准确率提升。
 
-本 Skill 只面向 Codex，不提供其他 Agent 的调用或适配层。
+## 优势
 
-## 调用
+- **接手有依据。** 记录任务、WIP、下一步和 Git/文件基线；没有旧聊天也能从项目和记录恢复。
+- **不把历史声明当完成证明。** 当前证据、漂移、失效验证和未知项分别报告；机器指纹相同不代表功能完整。
+- **真实保护开发现场。** 分别识别 HEAD、索引、磁盘与未跟踪文件，区分 Worktree；查看、恢复和核验默认只读。
+- **操作简单，细节可查。** 三个核心入口自动识别工作区；风险直接显示，完整证据与 Git 差异可展开查看。
+- **同一引擎，多种入口。** GUI、CLI 与原 Skill 共用证据规则；版本化 JSON、不可变快照和并发冲突拒绝方便维护。
 
-```text
-$project-context-manager status
-$project-context-manager checkpoint
-$project-context-manager compress
-$project-context-manager handoff
-$project-context-manager restore
-$project-context-manager verify
+恢复需要可访问的必要项目文件。工具不搬运源码、不自动保存编辑器缓冲区，不执行交接中夹带的命令，也不自动继续开发。
+
+## 使用 GUI
+
+将提供的 VSIX 通过 VS Code「扩展 → 从 VSIX 安装」安装，打开本地项目，在资源管理器的 Project Context Manager 中选择操作。
+
+交接：点击交接 → 必要时补充任务并检查风险 → 生成 JSON/Markdown。已有完整任务记录时无需重复填写。生成记录后仍需要接收方核实语义。
+
+恢复：点击恢复 → 自动核验适用记录 → 查看断点、冲突和下一步。未找到记录会解释如何处理，不显示恢复成功。
+
+高级入口保留 checkpoint、compress、verify、历史、文件证据/Git 差异、复制接收指令，以及独立授权的 Codex 语义分析。范围和记录路径可通过 CLI 指定。未受信任工作区不写记录或运行 Agent。
+
+## 使用 CLI
+
+需要 Node.js ≥22.12；Git 机器检查需要系统 Git。源码构建产物 `dist/pcm.cjs` 可直接运行（解压 ZIP 内对应 `bin/pcm.cjs`），无需 Agent 登录或网络：
+
+```sh
+node dist/pcm.cjs status /path/to/project
+node dist/pcm.cjs preview /path/to/project --task /path/to/current-task.json
+node dist/pcm.cjs checkpoint /path/to/project --task /path/to/current-task.json
+node dist/pcm.cjs handoff /path/to/project
+node dist/pcm.cjs restore /path/to/project
+node dist/pcm.cjs verify /path/to/project
+node dist/pcm.cjs evidence /path/to/project src/app.ts
 ```
 
-模式词是 Codex 任务提示，不是 shell 子命令。仅调用 `$project-context-manager` 默认 status，再建议下一模块，不直接修改文件。支持自然语言隐式调用：“现在项目做到哪了”“保存一下当前断点”“压缩上下文”“我要换 Codex 账号”“恢复项目”“检查上下文有没有漂移”。没有用户交接意图时不会创建正式账号 Handoff。
+六模块、默认 status 和 `health-check` 别名保留。任务 JSON 为 `{ "goal": "目标", "current": "断点", "next": "下一步", "workInProgress": ["未完成工作"] }`；未知项用 null。位置可通过 `--store docs/project-context/pcm` 指定，位置在 preview 中可见；默认沿用适用上下文目录，在其下新增 pcm 记录，不覆盖 v2 Markdown。
 
-## 典型流程
+普通操作退出码：0 操作成功，1 失败，2 部分成功/待核实，130 取消。`analyze` 的候选结果仍使用 2；不代表已经认证项目完成。
 
-日常开发：status → 开发工作 → checkpoint；上下文过长时 compress，需检查记录是否仍适用时 verify。WIP、dirty 工作区、失败测试和未验证内容均如实保留，不伪装完成。
+自定义验证必须是当前用户独立授权，可能写项目。Readonly 模块不自动运行它：
 
-账号交接：
-
-```text
-Codex Account A
-$project-context-manager handoff
-→ Handoff Ready（或 Ready With Gaps / Not Ready，并解释原因）
-→ 切换 Codex 账号，打开同一个项目及所需文件
-Codex Account B
-$project-context-manager restore
-→ Restore Report
-→ 用户确认后继续开发
+```sh
+node dist/pcm.cjs validate-run /path/to/project --allow-project-side-effects '["node","tests/check.js"]'
 ```
 
-若用户已同时明确授权“恢复后继续开发”，恢复报告后可继续该任务，无需重复确认。单独 restore 报告后停止。handoff 不自动传输代码或未提交内容；接收方需能访问实际项目文件。dirty 本身不阻止交接，但缺失关键修改会影响准备度。
+引擎采用参数数组，不启动 shell；不接受 shell/Git 执行器作为此入口。结果分别记录 Passed、Failed、Blocked、Not run、Incomplete，执行中基线变化不会继续认证为当前 Passed。用户选择的验证代码不是沙箱；超时不保证终止其所有后代进程。
 
-## 工作原则
+## 完整本地交付
 
-- 当前代码 > Git > 项目文档 > 当前任务记录 > 聊天记录；真实实现不能自动覆盖有效约束或合法化实现偏差。
-- 六模块共用 `references/state-reconstruction.md`；模板承载字段，不定义新的事实标准。
-- 优先复用项目文档，不强制 `.project-context` 或固定一套文件；只做有限同步。
-- 最小充分上下文，不累积聊天流水账；100–180 行仅为压缩软参考，关键约束、决策理由、风险和证据不可为了行数删除。
-- 不自动 commit/push/reset/clean/stash/deploy，不因整理上下文修改源码，不复制凭据，不全仓无差别扫描。
-- 不保存模型私有推理。Skill 包只保存方法，项目记忆保存在对应项目中。
+`npm run package:release` 生成包含 CLI、VSIX、说明、Schema 和验证材料的版本化 ZIP，检查内容后解压运行独立 CLI 自检，并验证篡改拒绝。见 [交付指南与本次证据](docs/next/delivery.md)。解压包内运行 `node verify.mjs` 可检查文件哈希和合成工作流；这不等于全部产品发布验收通过。
 
-## 目录
+## 原有 Skill 与 Agent 接口
 
-```text
-project-context-manager/
-├── SKILL.md
-├── README.md
-├── agents/openai.yaml
-├── references/
-│   ├── state-reconstruction.md
-│   ├── status.md
-│   ├── checkpoint.md
-│   ├── compress.md
-│   ├── handoff.md
-│   ├── restore.md
-│   ├── verify.md
-│   ├── health-check.md
-│   └── validation.md
-└── assets/
-    ├── checkpoint-template.md
-    ├── handoff-template.md
-    └── decision-template.md
+[SKILL.md](SKILL.md) 和 references/assets/agents 保留。安装和原调用见 [v2 使用说明](docs/v2-README.md)；可选引擎接入见 [说明](references/engine-integration.md)。引擎不可用时仍可按 v2 规则操作，但没有程序化核验。
+
+| Agent       | 本轮状态                                            |
+| ----------- | --------------------------------------------------- |
+| Codex       | 实际 CLI 适配器；独立恢复与错误完成声明冲突实测通过 |
+| Claude Code | 仅中立接口和技术设计，无运行客户端，无登录/实测     |
+| Gemini CLI  | 仅中立接口和技术设计，无运行客户端，无登录/实测     |
+
+两种接口共用证据来源、候选结果、不确定性、取消与能力检测契约。详见 [接口定义](packages/adapters/src/ports.ts) 和 [接入设计](docs/next/m4.md)。真实双向恢复通过前，不宣称跨 Agent 正式支持。账号凭据和内部会话不读取或迁移。
+
+## 工程与实际验收
+
+```sh
+npm ci --ignore-scripts
+npm run check
+npm test -- tests/m5.test.ts
+npm run build
+npm run test:extension
 ```
 
-## 从旧版升级
+### 本地开发打包
 
-`compress`、`restore` 仍可调用；普通压缩不再表示正式账号交接，需要正式交接请使用 `handoff`。无模式调用由 health-check 改为 status。旧 Handoff 无新字段时仍可作为定位资料读取；缺失基线/Purpose/Checkpoint 如实记录，不强制迁移，不推断正式就绪。
+安装开发依赖后，在项目根目录执行：
 
-`health-check` 保留轻量别名，路由 verify；输出改为 Verified / Verified With Gaps / Drift Detected / Insufficient Evidence。依赖旧 Good / Warning / Poor 文本的自动处理需调整，不能机械映射。新的只读模式不会替用户自动补齐旧文档。
+```sh
+npm run check
+npm run package:vsix
+```
 
-## 验证与边界
+`package:vsix` 先运行现有 build，生成扩展 bundle，再调用本地已安装的 `@vscode/vsce`，以 `--no-dependencies` 打包；不下载或调用全局 VSCE。仅扩展清单、扩展 README、第三方许可通知、`dist/extension.cjs` 和规则资源进入临时打包目录，工作区依赖、源码及 `.git` 不会进入 VSIX。
 
-默认采用 3+1 验收：基础结构、一次核心交接恢复链路、一次冲突测试，另按实际修改范围追加。历史边界仅作为可选 Full Regression。验收规范见 [references/validation.md](references/validation.md)。格式校验与实际隔离行为验收分别报告，旧版测试结果不自动继承为 v2 通过。
+输出为项目外层现有 `../../outputs/project-context-manager-<扩展版本>.vsix`；重复运行会更新同版本文件。已完成 build 时可直接执行 `node scripts/package-vsix.mjs`，它只打包现有产物，不检查 bundle 是否对应最新源码；缺少必要产物时会失败。通过 VS Code「从 VSIX 安装」安装生成的文件。
 
-本次 v2 核心验收通过：基础结构 PASS；最小隔离项目的 checkpoint → handoff → 无旧聊天独立 restore 主流程 PASS；虚假完成声明的冲突检测 PASS。恢复与核验未改写测试项目。未执行完整回归，尚未覆盖大型多模块仓库、并行文档修改、跨工作树文件缺失及真实提交历史漂移；未在真实用户项目上测试。
+打包成功仅证明本地安装包生成成功；alpha 阶段的完整 GUI、跨平台、用户研究及跨 Agent 验收仍未全部完成，不能据此宣称正式发布就绪。
 
-不包含运行脚本、数据库、后台服务、自动 quota 检测、定时保存或跨 Agent 兼容层；默认用户在 Codex 正常可用时主动 checkpoint/handoff。不能恢复未保存且不可访问的旧聊天；本地文件、Git 和适用验证工具的可用性决定核验范围。
+模块位于 packages/protocol、engine、cli、adapters、vscode、evaluation；阶段设计保存在 docs/next。扩展测试使用独立 VS Code 配置和临时项目。Windows、macOS、Linux 已完成测试、构建、离线演示及打包 CI。
+
+本机核心验收：基础结构 PASS；checkpoint → handoff → 无旧聊天独立 Codex → restore PASS；错误完成声明冲突 PASS。新增路径、范围、验证执行、并发写入及发布后检查、扩展命令和评分工具有实际针对性测试。详见 [执行记录](docs/next/validation.md)。
+
+[评估工具](docs/next/m6.md) 生成 216 次可重复实验排程并对真实人工复核数据评分；目前实验未执行，12 个样例仅为设计分类。未宣称准确率、Token 优势或用户研究通过。
+
+Known Limitations：完整 GUI/辅助功能、12 人 UX、恶意竞争及跨 Agent 双向实测尚未完成，作为未来正式发布事项，不阻止本次 Alpha 核心展示交付。远程工作区、桌面第二客户端、源码搬运、云同步和后台自动保存不在本次范围。敏感内容采用默认路径排除和已知模式脱敏，不能保证识别任意秘密；本地路径检查不等同恶意文件系统沙箱。
+
+源码已上传 GitHub 草稿 PR，作品集演示已上线；未合并 PR 或发布 Marketplace。仓库原先未提供许可证，本次不擅自声明开源授权；打包运行时的第三方许可另附。
+
+Git 采集范围是受管理文件与未被忽略的未跟踪文件；Git 忽略的必要文件需显式选择并核验，不能把默认清单当作所有文件已齐备的证明。手动重跑付费 Codex 核心验收：
+
+    npx tsx scripts/acceptance.ts --allow-agent-calls
+
+脚本只创建合成项目，保存候选结果；需要人工审查后报告通过，不在默认测试中运行。

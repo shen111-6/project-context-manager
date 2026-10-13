@@ -1,0 +1,75 @@
+{
+  "name": "project-context-manager",
+  "displayName": "Project Context Manager",
+  "description": "可靠项目交接、恢复与状态查看 (alpha)",
+  "version": "3.0.0-alpha.2",
+  "publisher": "project-context-manager-local",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "main": "./dist/extension.cjs",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:pcm.tasks"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "未受信任工作区只允许机器状态与只读恢复，不运行脚本或写入记录。"
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "pcm.tasks",
+          "name": "Project Context Manager"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "pcm.status",
+        "title": "PCM: 查看项目状态"
+      },
+      {
+        "command": "pcm.handoff",
+        "title": "PCM: 交接项目"
+      },
+      {
+        "command": "pcm.restore",
+        "title": "PCM: 恢复项目"
+      },
+      {
+        "command": "pcm.advanced",
+        "title": "PCM: 高级操作"
+      }
+    ],
+    "viewsWelcome": [
+      {
+        "view": "pcm.tasks",
+        "contents": "打开本地项目即可使用交接、恢复和状态查看。"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "group": "navigation",
+          "when": "view == pcm.tasks",
+          "command": "pcm.advanced"
+        }
+      ]
+    }
+  },
+  "license": "UNLICENSED"
+}
