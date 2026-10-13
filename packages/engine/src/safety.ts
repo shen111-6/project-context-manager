@@ -73,7 +73,8 @@ export async function safePath(
       "UNSAFE_PATH",
       "路径必须在项目范围内，不能包含目录穿越或控制字符。",
     );
-  let current = root;
+  const resolvedRoot = await realpath(root);
+  let current = resolvedRoot;
   for (const segment of relative.split("/")) {
     if (segment === ".") continue;
     current = path.join(current, segment);
@@ -82,7 +83,7 @@ export async function safePath(
       if (st.isSymbolicLink())
         throw new PcmError("SYMLINK", "不跟随符号链接或目录联接。");
       const resolved = await realpath(current),
-        rel = path.relative(root, resolved);
+        rel = path.relative(resolvedRoot, resolved);
       if (
         rel === ".." ||
         rel.startsWith(`..${path.sep}`) ||

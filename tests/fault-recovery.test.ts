@@ -9,6 +9,7 @@ import {
   unlink,
   chmod,
   readdir,
+  realpath,
 } from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
@@ -35,8 +36,9 @@ const task = (current: string) => ({
 async function fixture() {
   const parent = await mkdtemp(path.join(tmpdir(), "pcm-fault-"));
   roots.push(parent);
-  const root = path.join(parent, "project");
-  await mkdir(root);
+  const requestedRoot = path.join(parent, "project");
+  await mkdir(requestedRoot);
+  const root = await realpath(requestedRoot);
   await writeFile(path.join(root, "app.ts"), "export const state = 'WIP';\n");
   const initial = await operate({ ...request(root), task: task("initial") });
   expect(initial.operationOutcome).toBe("success");

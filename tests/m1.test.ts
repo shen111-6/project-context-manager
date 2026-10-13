@@ -12,7 +12,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { execFile } from "node:child_process";
 import { collect } from "../packages/engine/src/collect.js";
-import { digest } from "../packages/engine/src/safety.js";
+import { digest, safePath } from "../packages/engine/src/safety.js";
 import {
   validateSnapshot,
   type Snapshot,
@@ -170,4 +170,16 @@ describe("M1 deterministic read-only evidence", () => {
     s.claims[0]!.evidenceIds = ["nonexistent"];
     expect(validateSnapshot(s).errors.join()).toContain("Dangling");
   });
+});
+
+it("accepts an explicit root alias while rejecting links inside its boundary", async () => {
+  const parent = await temp();
+  const root = path.join(parent, "project"), alias = path.join(parent, "alias");
+  await mkdir(root);
+  await writeFile(path.join(root, "app.ts"), "synthetic");
+  await symlink(root, alias, process.platform === "win32" ? "junction" : "dir");
+  expect(await readFile(await safePath(alias, "app.ts"), "utf8")).toBe("synthetic");
+  await symlink(parent, path.join(root, "escape"), process.platform === "win32" ? "junction" : "dir");
+  await expect(safePath(alias, "escape")).rejects.toMatchObject({code:"SYMLINK"});
+  await expect(safePath(alias, "../app.ts")).rejects.toMatchObject({code:"UNSAFE_PATH"});
 });
