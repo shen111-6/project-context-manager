@@ -18,7 +18,8 @@
     "test:extension": "node scripts/test-extension.mjs",
     "check:structure": "node scripts/check-structure.mjs",
     "demo": "npm run build && node scripts/demo.mjs",
-    "package:release": "npm run package:vsix && node scripts/package-release.mjs"
+    "package:release": "npm run package:vsix && node scripts/package-release.mjs",
+    "acceptance:scale": "npm run build && node scripts/scale-acceptance.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1"

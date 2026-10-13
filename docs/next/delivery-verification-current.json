@@ -1,7 +1,7 @@
 {
   "status": "Passed",
-  "artifact": "project-context-manager-3.0.0-alpha.2-delivery-5fdc90aa-a735-4fa4-bdb4-8926de9bc517.zip",
-  "sha256": "b7805a48ec468444ac3cbe38978084761a4b9bd317b03addbbce26f0d684f164",
+  "artifact": "project-context-manager-3.0.0-alpha.2-delivery-8b7a029f-b36a-470e-9dec-3cf08a146bbf.zip",
+  "sha256": "49048f33e28a9931aef4d6e006b1d9c6f8d585e98f20b206f1b915b245a3f0a8",
   "archiveEntries": [
     "bin/pcm.cjs",
     "schema/snapshot-v1.json",
@@ -80,5 +80,5 @@
     ],
     "tamperRejection": "Passed before CLI execution"
   },
-  "verificationTime": "2026-10-13T03:33:16.761Z"
+  "verificationTime": "2026-10-13T04:36:06.634Z"
 }

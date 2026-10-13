@@ -2,7 +2,17 @@
 
 保留 Codex v2 六模块 Skill，新增独立 TypeScript 引擎、结构化交接记录、CLI 和真实 VS Code 图形界面。用户入口只有 **交接项目、恢复项目、查看状态**。
 
-当前交付为 `3.0.0-alpha.2`，交接协议为 `schema_version: 1`。这是本地可用性与核心工作流验证版本，尚未通过完整发布验收。
+当前交付为 `3.0.0-alpha.2`，交接协议为 `schema_version: 1`。本次 Alpha 核心功能与演示验收 PASS，可用于 AI 工程岗位项目展示；完整正式发布验收仍独立保留。
+
+## 本次 Alpha 交付：核心功能与优势
+
+1. **接续开发**：保存并恢复目标、断点、WIP 和下一步，让新会话从明确状态继续。
+2. **发现过时结论**：重新比对代码与 Git，发现交接之后的漂移，不沿用旧“完成/通过”声明。
+3. **保护工作现场**：查看、恢复与核验默认只读；记录不可变，拒绝并发覆盖及篡改。
+
+[在线演示](https://personal-projects-y3tzt1.yaofengshen05.chatgpt.site/project-context-manager.html) · [源码草稿 PR](https://github.com/shen111-6/project-context-manager/pull/1) · [Alpha 交付报告](docs/next/alpha-delivery-2026-10-13.md) · [已知限制](docs/next/alpha-delivery-2026-10-13.md#known-limitations)
+
+2026-10-13：本地 38 项回归、七个离线场景已通过；三平台既有 CI 通过。本次 6,202 文件规模夹具的限定检查通过，6,207 项哈希不变；单次耗时不作为性能承诺。Alpha 保留语义待核实和接口限制。
 
 ## 快速演示与项目展示
 
@@ -30,7 +40,7 @@
 
 ## 使用 CLI
 
-需要 Node.js ≥22.12；Git 机器检查需要系统 Git。交付包内的 `dist/pcm.cjs` 可直接运行，无需 Agent 登录或网络：
+需要 Node.js ≥22.12；Git 机器检查需要系统 Git。源码构建产物 `dist/pcm.cjs` 可直接运行（解压 ZIP 内对应 `bin/pcm.cjs`），无需 Agent 登录或网络：
 
 ```sh
 node dist/pcm.cjs status /path/to/project
@@ -95,15 +105,15 @@ npm run package:vsix
 
 打包成功仅证明本地安装包生成成功；alpha 阶段的完整 GUI、跨平台、用户研究及跨 Agent 验收仍未全部完成，不能据此宣称正式发布就绪。
 
-模块位于 packages/protocol、engine、cli、adapters、vscode、evaluation；阶段设计保存在 docs/next。扩展测试使用独立 VS Code 配置和临时项目。三平台 CI 已配置，尚未实际运行 macOS/Linux。
+模块位于 packages/protocol、engine、cli、adapters、vscode、evaluation；阶段设计保存在 docs/next。扩展测试使用独立 VS Code 配置和临时项目。Windows、macOS、Linux 已完成测试、构建、离线演示及打包 CI。
 
 本机核心验收：基础结构 PASS；checkpoint → handoff → 无旧聊天独立 Codex → restore PASS；错误完成声明冲突 PASS。新增路径、范围、验证执行、并发写入及发布后检查、扩展命令和评分工具有实际针对性测试。详见 [执行记录](docs/next/validation.md)。
 
 [评估工具](docs/next/m6.md) 生成 216 次可重复实验排程并对真实人工复核数据评分；目前实验未执行，12 个样例仅为设计分类。未宣称准确率、Token 优势或用户研究通过。
 
-尚待完整 Webview 点击 E2E、12 人 UX 研究、三平台/大型项目/故障验收、跨 Agent 客户端和双向实测。远程工作区、桌面第二客户端、源码搬运、云同步和后台自动保存不在本次范围。敏感内容采用默认路径排除和已知模式脱敏，不能保证识别任意秘密；本地路径检查不等同恶意文件系统沙箱。
+Known Limitations：完整 GUI/辅助功能、12 人 UX、恶意竞争及跨 Agent 双向实测尚未完成，作为未来正式发布事项，不阻止本次 Alpha 核心展示交付。远程工作区、桌面第二客户端、源码搬运、云同步和后台自动保存不在本次范围。敏感内容采用默认路径排除和已知模式脱敏，不能保证识别任意秘密；本地路径检查不等同恶意文件系统沙箱。
 
-本地交付未推送 GitHub、未发布 Marketplace。仓库原先未提供许可证，本次不擅自声明开源授权；打包运行时的第三方许可另附。
+源码已上传 GitHub 草稿 PR，作品集演示已上线；未合并 PR 或发布 Marketplace。仓库原先未提供许可证，本次不擅自声明开源授权；打包运行时的第三方许可另附。
 
 Git 采集范围是受管理文件与未被忽略的未跟踪文件；Git 忽略的必要文件需显式选择并核验，不能把默认清单当作所有文件已齐备的证明。手动重跑付费 Codex 核心验收：
 

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "kind": "alpha-scale-acceptance-summary",
+  "status": "PASS",
+  "startedAt": "2026-10-13T04:27:48.858Z",
+  "finishedAt": "2026-10-13T04:30:08.094Z",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.18.0"
+  },
+  "fixture": {
+    "modules": 24,
+    "trackedFiles": 6002,
+    "untrackedFiles": 200
+  },
+  "stages": [
+    {
+      "label": "default-file-limit",
+      "elapsedMs": 74959,
+      "files": 5000,
+      "coverage": "incomplete",
+      "limitReported": true
+    },
+    {
+      "label": "scoped-repeatable-evidence",
+      "elapsedMs": 10063,
+      "files": 250,
+      "stableFingerprint": true,
+      "workingTree": "dirty"
+    },
+    {
+      "label": "oversize-and-total-read-budgets",
+      "elapsedMs": 3995,
+      "oversizeExcluded": true,
+      "totalBudget": 32768,
+      "readableBytes": 31929,
+      "coverage": "incomplete"
+    },
+    {
+      "label": "cancel-during-collection-and-fresh-retry",
+      "elapsedMs": 4688,
+      "cancelledAfterStart": true,
+      "freshRetrySameFingerprint": true,
+      "abortDelayMs": 100
+    },
+    {
+      "label": "scoped-handoff-readonly-restore",
+      "elapsedMs": 27173,
+      "restoredWip": true,
+      "restoredScope": [
+        "modules/module-00"
+      ],
+      "outcome": "partial"
+    },
+    {
+      "label": "all-fixture-bytes-preserved",
+      "elapsedMs": 2318,
+      "sha256Matches": 6207,
+      "includesGitIndex": true,
+      "includesHandoffArtifacts": true
+    }
+  ],
+  "rawReportSha256": "734b093f1149cf8ba3632f376652fb645ff253c45e025f37a16794850cb5be3c",
+  "protectedHashCount": 6207,
+  "limitations": [
+    "Synthetic workload; single observations are not performance benchmarks or product efficacy measurements.",
+    "Cancellation exercises the real engine after invocation, not native GUI clicks.",
+    "Read-only evidence covers all generated fixture files plus Git index/HEAD and handoff artifacts; no malicious filesystem race claim."
+  ]
+}
